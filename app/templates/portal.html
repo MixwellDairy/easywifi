@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free WiFi - Captive Portal</title>
+    <title>{{ config.portal_title }}</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background: #f4f4f4; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 300px; }
-        input, button { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; }
-        .tos { font-size: 0.8em; color: #666; max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 5px; margin-bottom: 10px; }
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background: {{ config.portal_bg_color }}; color: #333; }
+        .card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        .logo { max-width: 150px; margin-bottom: 20px; }
+        input[type="text"], input[type="email"], button { width: 100%; margin: 12px 0; padding: 12px; box-sizing: border-box; border-radius: 6px; border: 1px solid #ddd; font-size: 16px; }
+        button { background: {{ config.portal_color }}; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .tos { font-size: 0.8em; color: #666; max-height: 100px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 15px; text-align: left; background: #fafafa; }
+        .welcome { margin-bottom: 20px; color: #555; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2>Join WiFi</h2>
+        {% if config.logo_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + config.logo_filename) }}" class="logo" alt="Logo">
+        {% endif %}
+        <h2>{{ config.portal_title }}</h2>
+        <p class="welcome">{{ config.portal_welcome }}</p>
+
         <form action="/login" method="post">
             <input type="hidden" name="mac" value="{{ mac }}">
             <input type="text" name="name" placeholder="Name" required>
@@ -24,12 +31,12 @@
             <div class="tos">
                 {{ config.tos_text }}
             </div>
-            <label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9em; margin-bottom: 10px;">
                 <input type="checkbox" name="tos_agree" required> I agree to the Terms of Service
             </label>
             {% endif %}
 
-            <button type="submit">Connect</button>
+            <button type="submit">{{ config.portal_button_text }}</button>
         </form>
     </div>
 </body>

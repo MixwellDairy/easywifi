@@ -5,22 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EasyWiFi Admin Panel</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 20px; color: #333; }
-        .container { max-width: 900px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #1a73e8; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input[type="text"], input[type="password"], textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        textarea { height: 100px; resize: vertical; }
-        .btn { padding: 12px 25px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
-        .btn:hover { background: #1557b0; }
-        .logout { float: right; color: #666; text-decoration: none; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: #5f6368; }
-        tr:hover { background-color: #f1f3f4; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; }
-        .checkbox-group input { width: auto; margin: 0; }
+        :root { --primary-color: #1a73e8; --bg-color: #f0f2f5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--primary-color); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 60 -0; font-size: 0.9em; }
+        input[type="text"], input[type="password"], input[type="number"], input[type="color"], textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        textarea { height: 80px; }
+        .btn { padding: 10px 20px; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn:hover { opacity: 0.9; }
+        .logout { float: right; color: #666; text-decoration: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
+        .monitor-card { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; height: 200px; overflow-y: auto; }
+        .section { margin-bottom: 40px; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -28,56 +29,110 @@
         <a href="/admin/logout" class="logout">Logout</a>
         <h1>EasyWiFi Admin</h1>
 
-        <section>
-            <h2>WiFi Configuration</h2>
-            <form method="POST">
-                <div class="form-group">
-                    <label>SSID (WiFi Name):</label>
-                    <input type="text" name="ssid" value="{{ config.ssid }}" required>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="grid">
+                <!-- WiFi Settings -->
+                <div class="section">
+                    <h2>WiFi Settings</h2>
+                    <div class="form-group">
+                        <label>SSID:</label>
+                        <input type="text" name="ssid" value="{{ config.ssid }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>WPA2 Password:</label>
+                        <input type="text" name="wpa_passphrase" value="{{ config.wpa_passphrase }}" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>WPA2 Password:</label>
-                    <input type="text" name="wpa_passphrase" value="{{ config.wpa_passphrase }}" required minlength="8">
-                </div>
-                <div class="form-group">
-                    <label>Terms of Service Text:</label>
-                    <textarea name="tos_text">{{ config.tos_text }}</textarea>
-                </div>
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" name="tos_enabled" id="tos_enabled" {% if config.tos_enabled %}checked{% endif %}>
-                    <label for="tos_enabled">Enable Terms of Service</label>
-                </div>
-                <button type="submit" class="btn">Update Settings</button>
-            </form>
-        </section>
 
-        <section>
-            <h2>Connected / Registered Users</h2>
+                <!-- Styling -->
+                <div class="section">
+                    <h2>Portal Styling</h2>
+                    <div class="form-group">
+                        <label>Logo:</label>
+                        <input type="file" name="logo" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Portal Title:</label>
+                        <input type="text" name="portal_title" value="{{ config.portal_title }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Color:</label>
+                        <input type="color" name="portal_color" value="{{ config.portal_color }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Background Color:</label>
+                        <input type="color" name="portal_bg_color" value="{{ config.portal_bg_color }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                 <!-- Content Customization -->
+                 <div class="section">
+                    <h2>Content & Limits</h2>
+                    <div class="form-group">
+                        <label>Welcome Message:</label>
+                        <input type="text" name="portal_welcome" value="{{ config.portal_welcome }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Connected Message:</label>
+                        <input type="text" name="connected_message" value="{{ config.connected_message }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Time Limit (Minutes):</label>
+                        <input type="number" name="time_limit_minutes" value="{{ config.time_limit_minutes }}">
+                    </div>
+                </div>
+
+                <!-- Blocking -->
+                <div class="section">
+                    <h2>Website Blocking</h2>
+                    <label>Format: domain, custom header (one per line)</label>
+                    <textarea name="blocked_sites_raw">{% for s in config.blocked_sites %}{{ s.domain }}, {{ s.header }}
+{% endfor %}</textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Apply All Changes</button>
+        </form>
+
+        <div class="section">
+            <h2>Real-time Traffic Monitor (Updating every 5s)</h2>
+            <div id="monitor" class="monitor-card">
+                Initializing monitoring...
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Registered Users</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>MAC Address</th>
-                    </tr>
+                    <tr><th>Time</th><th>Name</th><th>Email</th><th>MAC</th></tr>
                 </thead>
-                <tbody>
+                <tbody id="user-table-body">
                     {% for user in users %}
-                    <tr>
-                        <td>{{ user[0] }}</td>
-                        <td>{{ user[1] }}</td>
-                        <td>{{ user[2] }}</td>
-                        <td>{{ user[3] }}</td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4">No users registered yet.</td>
-                    </tr>
+                    <tr><td>{{ user[0][:16] }}</td><td>{{ user[1] }}</td><td>{{ user[2] }}</td><td>{{ user[3] }}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </section>
+        </div>
     </div>
+
+    <script>
+        function updateMonitor() {
+            fetch('/admin/api/traffic')
+                .then(r => r.json())
+                .then(data => {
+                    const mon = document.getElementById('monitor');
+                    let html = 'DEVICE | DOWN | UP | DOMAINS<br>----------------------------------<br>';
+                    data.forEach(d => {
+                        html += `${d.mac} | ${d.down} | ${d.up} | ${d.domains.join(', ')}<br>`;
+                    });
+                    mon.innerHTML = html;
+                });
+        }
+        setInterval(updateMonitor, 5000);
+        updateMonitor();
+    </script>
 </body>
 </html>

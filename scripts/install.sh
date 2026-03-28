@@ -5,7 +5,7 @@ set -e
 
 echo "Installing dependencies..."
 sudo apt-get update
-sudo apt-get install -y hostapd dnsmasq python3-flask iptables net-tools
+sudo apt-get install -y hostapd dnsmasq python3-flask iptables net-tools iproute2
 
 # Directory for configuration and scripts
 INSTALL_DIR="/usr/local/etc/easywifi"
