@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyWiFi Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #1a73e8; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"], input[type="password"], textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        textarea { height: 100px; resize: vertical; }
+        .btn { padding: 12px 25px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+        .btn:hover { background: #1557b0; }
+        .logout { float: right; color: #666; text-decoration: none; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #5f6368; }
+        tr:hover { background-color: #f1f3f4; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input { width: auto; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/admin/logout" class="logout">Logout</a>
+        <h1>EasyWiFi Admin</h1>
+
+        <section>
+            <h2>WiFi Configuration</h2>
+            <form method="POST">
+                <div class="form-group">
+                    <label>SSID (WiFi Name):</label>
+                    <input type="text" name="ssid" value="{{ config.ssid }}" required>
+                </div>
+                <div class="form-group">
+                    <label>WPA2 Password:</label>
+                    <input type="text" name="wpa_passphrase" value="{{ config.wpa_passphrase }}" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label>Terms of Service Text:</label>
+                    <textarea name="tos_text">{{ config.tos_text }}</textarea>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" name="tos_enabled" id="tos_enabled" {% if config.tos_enabled %}checked{% endif %}>
+                    <label for="tos_enabled">Enable Terms of Service</label>
+                </div>
+                <button type="submit" class="btn">Update Settings</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Connected / Registered Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>MAC Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user[0] }}</td>
+                        <td>{{ user[1] }}</td>
+                        <td>{{ user[2] }}</td>
+                        <td>{{ user[3] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">No users registered yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+</body>
+</html>
