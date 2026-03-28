@@ -1,0 +1,30 @@
+ * Serving Flask app 'app'
+ * Debug mode: off
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+127.0.0.1 - - [28/Mar/2026 21:38:16] "GET / HTTP/1.1" 200 -
+sudo: /usr/local/bin/authorize_mac.sh: command not found
+127.0.0.1 - - [28/Mar/2026 21:38:18] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [28/Mar/2026 21:38:19] "GET /admin HTTP/1.1" 200 -
+127.0.0.1 - - [28/Mar/2026 21:38:20] "[32mPOST /admin HTTP/1.1[0m" 302 -
+127.0.0.1 - - [28/Mar/2026 21:38:20] "GET /admin HTTP/1.1" 200 -
+127.0.0.1 - - [28/Mar/2026 21:38:20] "GET /admin/api/traffic HTTP/1.1" 200 -
+[2026-03-28 21:38:21,367] ERROR in app: Exception on /admin [POST]
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/app/app.py", line 201, in admin
+    config['time_limit_minutes'] = int(request.form.get('time_limit_minutes', 60))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: ''
+127.0.0.1 - - [28/Mar/2026 21:38:21] "[35m[1mPOST /admin HTTP/1.1[0m" 500 -

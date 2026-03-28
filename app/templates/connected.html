@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connected</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 100px; background: {{ config.portal_bg_color }}; color: #333; text-align: center; }
+        .card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
+        h1 { color: #28a745; }
+        .logo { max-width: 150px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        {% if config.logo_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + config.logo_filename) }}" class="logo" alt="Logo">
+        {% endif %}
+        <h1>Connected!</h1>
+        <p>{{ config.connected_message }}</p>
+    </div>
+</body>
+</html>

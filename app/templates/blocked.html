@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Blocked</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 100px; background: #f8d7da; color: #721c24; text-align: center; }
+        .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 450px; border: 2px solid #f5c6cb; }
+        h1 { margin-bottom: 20px; }
+        .header { font-weight: bold; margin-top: 20px; padding: 10px; background: #eee; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Access Denied</h1>
+        <p>The website you are trying to visit has been blocked by the network administrator.</p>
+
+        {% if header %}
+        <div class="header">
+            Reason: {{ header }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
