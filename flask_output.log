@@ -1,18 +1,15 @@
  * Serving Flask app 'app'
  * Debug mode: off
-[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://192.168.0.2:5000
-[33mPress CTRL+C to quit[0m
-127.0.0.1 - - [28/Mar/2026 21:32:14] "GET / HTTP/1.1" 200 -
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+127.0.0.1 - - [28/Mar/2026 21:38:16] "GET / HTTP/1.1" 200 -
 sudo: /usr/local/bin/authorize_mac.sh: command not found
-127.0.0.1 - - [28/Mar/2026 21:32:16] "POST /login HTTP/1.1" 200 -
-127.0.0.1 - - [28/Mar/2026 21:32:17] "GET /admin HTTP/1.1" 200 -
-127.0.0.1 - - [28/Mar/2026 21:32:18] "[32mPOST /admin HTTP/1.1[0m" 302 -
-127.0.0.1 - - [28/Mar/2026 21:32:18] "GET /admin HTTP/1.1" 200 -
-127.0.0.1 - - [28/Mar/2026 21:32:18] "GET /admin/api/traffic HTTP/1.1" 200 -
-[2026-03-28 21:32:19,362] ERROR in app: Exception on /admin [POST]
+127.0.0.1 - - [28/Mar/2026 21:38:18] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [28/Mar/2026 21:38:19] "GET /admin HTTP/1.1" 200 -
+127.0.0.1 - - [28/Mar/2026 21:38:20] "[32mPOST /admin HTTP/1.1[0m" 302 -
+127.0.0.1 - - [28/Mar/2026 21:38:20] "GET /admin HTTP/1.1" 200 -
+127.0.0.1 - - [28/Mar/2026 21:38:20] "GET /admin/api/traffic HTTP/1.1" 200 -
+[2026-03-28 21:38:21,367] ERROR in app: Exception on /admin [POST]
 Traceback (most recent call last):
   File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -26,8 +23,8 @@ Traceback (most recent call last):
   File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/app/app.py", line 199, in admin
+  File "/app/app/app.py", line 201, in admin
     config['time_limit_minutes'] = int(request.form.get('time_limit_minutes', 60))
                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ValueError: invalid literal for int() with base 10: ''
-127.0.0.1 - - [28/Mar/2026 21:32:19] "[35m[1mPOST /admin HTTP/1.1[0m" 500 -
+127.0.0.1 - - [28/Mar/2026 21:38:21] "[35m[1mPOST /admin HTTP/1.1[0m" 500 -

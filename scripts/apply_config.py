@@ -41,8 +41,11 @@ def apply_config():
             f.write(dns_content + "\n" + block_rules)
 
     # Apply global speed limit
-    if config.get('global_speed_limit'):
-        subprocess.run(['sudo', '/usr/local/bin/set_speed_limit.sh', 'wlan0', str(config['global_speed_limit'])])
+    limit = config.get('global_speed_limit')
+    if limit:
+        subprocess.run(['sudo', '/usr/local/bin/set_speed_limit.sh', 'wlan0', str(limit)])
+    else:
+        subprocess.run(['sudo', '/usr/local/bin/set_speed_limit.sh', 'wlan0', '0'])
 
 if __name__ == "__main__":
     apply_config()

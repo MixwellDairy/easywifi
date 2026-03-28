@@ -14,8 +14,10 @@ sudo mkdir -p /var/www/easywifi/data
 
 # Copy application files
 echo "Copying application files..."
+sudo mkdir -p /var/www/easywifi/static/uploads
 sudo cp -r app/* /var/www/easywifi/
 sudo chown -R www-data:www-data /var/www/easywifi/data
+sudo chown -R www-data:www-data /var/www/easywifi/static/uploads
 
 # Copy scripts
 echo "Copying scripts..."
