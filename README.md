@@ -24,8 +24,15 @@ EasyWiFi is a lightweight solution to host a WiFi hotspot with a customizable ca
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/easywifi.git
+    git clone https://github.com/MixwellDairy/easywifi.git
     cd easywifi
+    ```
+
+    **Alternative: Download Archive** (if `git clone` asks for credentials):
+    ```bash
+    wget https://github.com/MixwellDairy/easywifi/archive/refs/heads/main.tar.gz
+    tar -xzf main.tar.gz
+    cd easywifi-main
     ```
 
 2.  **Run the installation script**:
