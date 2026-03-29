@@ -1,7 +1,0 @@
-{
-    "ssid": "NewHotspot",
-    "wpa_passphrase": "password123",
-    "tos_text": "Please agree to our terms of service.",
-    "tos_enabled": true,
-    "admin_password": "admin"
-}

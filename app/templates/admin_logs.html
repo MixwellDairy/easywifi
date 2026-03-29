@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Logs - EasyWiFi</title>
+    <style>
+        body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; line-height: 1.5; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .back-link { color: #569cd6; text-decoration: none; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/admin" class="back-link">&larr; Back to Admin</a>
+        <span>EasyWiFi System Logs</span>
+    </div>
+    <pre>{{ logs }}</pre>
+</body>
+</html>

@@ -36,9 +36,22 @@ sudo cp scripts/*.sh /usr/local/bin/
 # Patch the setup_network script with the detected interfaces for convenience
 sudo sed -i "s/^WLAN_IF=.*/WLAN_IF=\"$WLAN_IF\"/" /usr/local/bin/setup_network.sh
 sudo sed -i "s/^ETH_IF=.*/ETH_IF=\"$ETH_IF\"/" /usr/local/bin/setup_network.sh
+# Also patch authorize_mac.sh with the detected WLAN_IF
+sudo sed -i "s/wlan0/$WLAN_IF/g" /usr/local/bin/authorize_mac.sh
 sudo cp scripts/apply_config.py /usr/local/bin/
 sudo chmod +x /usr/local/bin/*.sh
 sudo cp scripts/*.template $INSTALL_DIR/
+
+# Configure NetworkManager to ignore the WiFi interface if it's running
+if systemctl is-active --quiet NetworkManager; then
+    echo "Configuring NetworkManager to ignore $WLAN_IF..."
+    sudo mkdir -p /etc/NetworkManager/conf.d
+    sudo bash -c "cat <<EOF > /etc/NetworkManager/conf.d/easywifi.conf
+[keyfile]
+unmanaged-devices=interface-name:$WLAN_IF
+EOF"
+    sudo systemctl reload NetworkManager || true
+fi
 
 # Systemd services
 echo "Setting up systemd services..."
@@ -48,9 +61,11 @@ Description=EasyWiFi Captive Portal App
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /var/www/easywifi/app.py
+ExecStart=/usr/bin/python3 -u /var/www/easywifi/app.py
 WorkingDirectory=/var/www/easywifi
 Environment=PYTHONPATH=/var/www/easywifi
+StandardOutput=append:/var/log/easywifi-app.log
+StandardError=append:/var/log/easywifi-app.log
 User=root
 Restart=always
 
@@ -63,7 +78,15 @@ sudo sed -i 's|#DAEMON_CONF=""|DAEMON_CONF="/etc/hostapd/hostapd.conf"|' /etc/de
 
 sudo systemctl daemon-reload
 sudo systemctl enable easywifi-app
+sudo systemctl restart easywifi-app || echo "Warning: easywifi-app failed to start. Check /var/log/easywifi-app.log"
 sudo systemctl unmask hostapd || true
 sudo systemctl enable hostapd
 
-echo "Installation complete. Please run 'sudo /usr/local/bin/setup_network.sh' once to initialize network rules."
+echo ""
+echo "EasyWiFi Installation complete."
+echo "------------------------------------------------"
+echo "Detected WiFi: $WLAN_IF"
+echo "Detected Ethernet: $ETH_IF"
+echo "------------------------------------------------"
+echo "IMPORTANT: Please run 'sudo /usr/local/bin/setup_network.sh' now to initialize network rules."
+echo "After that, you should be able to see the 'EasyWiFi' network."

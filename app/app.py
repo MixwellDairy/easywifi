@@ -21,29 +21,42 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def load_config():
+    default_config = {
+        'ssid': 'EasyWiFi',
+        'wpa_passphrase': 'password123',
+        'tos_text': 'Please agree to our terms of service.',
+        'tos_enabled': True,
+        'admin_password': 'admin',
+        'portal_title': 'Join WiFi',
+        'portal_welcome': 'Welcome to our free WiFi!',
+        'portal_color': '#007bff',
+        'portal_bg_color': '#f4f4f4',
+        'portal_button_text': 'Connect',
+        'connected_message': 'Successfully connected! You can now browse the internet.',
+        'logo_filename': None,
+        'blocked_sites': [], # List of dictionaries: {"domain": "...", "header": "..."}
+        'global_speed_limit': None, # in Mbps
+        'per_user_speed_limit': None, # in Mbps
+        'time_limit_minutes': 60,
+        'reconnect_delay_hours': 24
+    }
     if not os.path.exists(CONFIG_FILE):
-        default_config = {
-            'ssid': 'EasyWiFi',
-            'wpa_passphrase': 'password123',
-            'tos_text': 'Please agree to our terms of service.',
-            'tos_enabled': True,
-            'admin_password': 'admin',
-            'portal_title': 'Join WiFi',
-            'portal_welcome': 'Welcome to our free WiFi!',
-            'portal_color': '#007bff',
-            'portal_bg_color': '#f4f4f4',
-            'portal_button_text': 'Connect',
-            'connected_message': 'Successfully connected! You can now browse the internet.',
-            'logo_filename': None,
-            'blocked_sites': [], # List of dictionaries: {"domain": "...", "header": "..."}
-            'global_speed_limit': None, # in Mbps
-            'per_user_speed_limit': None, # in Mbps
-            'time_limit_minutes': 60,
-            'reconnect_delay_hours': 24
-        }
         save_config(default_config)
+        return default_config
+
     with open(CONFIG_FILE, 'r') as f:
-        return json.load(f)
+        config = json.load(f)
+
+    # Merge defaults to ensure all keys exist
+    updated = False
+    for k, v in default_config.items():
+        if k not in config:
+            config[k] = v
+            updated = True
+
+    if updated:
+        save_config(config)
+    return config
 
 def save_config(config):
     with open(CONFIG_FILE, 'w') as f:
@@ -53,6 +66,21 @@ def save_user(name, email, mac):
     with open(USERS_CSV, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([datetime.datetime.now().isoformat(), name, email, mac])
+
+def get_registered_user(mac):
+    if not os.path.exists(USERS_CSV) or not mac:
+        return None
+    try:
+        with open(USERS_CSV, 'r') as f:
+            reader = csv.reader(f)
+            # Search from most recent
+            rows = list(reader)
+            for row in reversed(rows):
+                if len(row) >= 4 and row[3] == mac:
+                    return {"name": row[1], "email": row[2]}
+    except:
+        pass
+    return None
 
 def get_authenticated_macs():
     if not os.path.exists(SESSIONS_FILE):
@@ -138,15 +166,17 @@ def index():
     sessions = get_authenticated_macs()
     authenticated_macs = [m['mac'] for m in sessions]
 
-    # In local testing, mac might be None or a mock value
-    if client_ip == '127.0.0.1' and not mac:
+    # Force LOCAL_TEST_MAC for local connections to help with testing/verification
+    if client_ip in ['127.0.0.1', '::1', 'localhost', '::ffff:127.0.0.1']:
         mac = 'LOCAL_TEST_MAC'
 
     if mac and mac in authenticated_macs:
         return render_template('connected.html', config=config)
 
-
-    # Check for reconnect delay (Optional: could be implemented by checking USERS_CSV)
+    # Check for returning user
+    user = get_registered_user(mac)
+    if user:
+        return render_template('portal.html', config=config, mac=mac, user=user)
 
     return render_template('portal.html', config=config, mac=mac)
 
@@ -165,9 +195,21 @@ def login():
     config = load_config()
     return render_template('connected.html', config=config)
 
+def get_service_status(service_name):
+    try:
+        res = subprocess.run(['systemctl', 'is-active', service_name], capture_output=True, text=True)
+        return res.stdout.strip() == 'active'
+    except:
+        return False
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     config = load_config()
+    status = {
+        'hostapd': get_service_status('hostapd'),
+        'dnsmasq': get_service_status('dnsmasq'),
+        'easywifi_app': get_service_status('easywifi-app')
+    }
     if request.method == 'POST':
         if session.get('admin_logged_in'):
             # Update settings
@@ -236,7 +278,25 @@ def admin():
             reader = csv.reader(f)
             users = list(reader)
 
-    return render_template('admin_panel.html', config=config, users=users)
+    return render_template('admin_panel.html', config=config, users=users, status=status)
+
+@app.route('/admin/logs')
+def admin_logs():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin'))
+
+    logs = ""
+    log_file = '/var/log/easywifi-app.log'
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r') as f:
+                logs = f.read()
+        except:
+            logs = "Error reading log file."
+    else:
+        logs = f"Log file {log_file} not found."
+
+    return render_template('admin_logs.html', logs=logs)
 
 @app.route('/admin/logout')
 def admin_logout():
@@ -318,5 +378,5 @@ if __name__ == '__main__':
         os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    port = int(os.environ.get('PORT', 80))
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
