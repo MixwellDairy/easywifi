@@ -26,8 +26,27 @@
 </head>
 <body>
     <div class="container">
-        <a href="/admin/logout" class="logout">Logout</a>
+        <div style="float: right;">
+            <a href="/admin/logs" class="btn" style="background: #666; font-size: 14px; text-decoration: none;">View Logs</a>
+            <a href="/admin/logout" class="logout" style="margin-left: 15px;">Logout</a>
+        </div>
         <h1>EasyWiFi Admin</h1>
+
+        <!-- System Status Section -->
+        <div class="section" style="background: #f8f9fa;">
+            <h2>System Status</h2>
+            <div style="display: flex; gap: 20px;">
+                <div style="padding: 10px; border-radius: 4px; background: {{ '#d4edda' if status.hostapd else '#f8d7da' }}; border: 1px solid {{ '#c3e6cb' if status.hostapd else '#f5c6cb' }};">
+                    <strong>Hostapd:</strong> {{ 'Active' if status.hostapd else 'Inactive' }}
+                </div>
+                <div style="padding: 10px; border-radius: 4px; background: {{ '#d4edda' if status.dnsmasq else '#f8d7da' }}; border: 1px solid {{ '#c3e6cb' if status.dnsmasq else '#f5c6cb' }};">
+                    <strong>Dnsmasq:</strong> {{ 'Active' if status.dnsmasq else 'Inactive' }}
+                </div>
+                <div style="padding: 10px; border-radius: 4px; background: {{ '#d4edda' if status.easywifi_app else '#f8d7da' }}; border: 1px solid {{ '#c3e6cb' if status.easywifi_app else '#f5c6cb' }};">
+                    <strong>Web App:</strong> {{ 'Active' if status.easywifi_app else 'Inactive' }}
+                </div>
+            </div>
+        </div>
 
         <form method="POST" enctype="multipart/form-data">
             <div class="grid">

@@ -59,6 +59,8 @@ sudo iptables -t nat -A PREROUTING -i $WLAN_IF -p udp --dport 53 -j ACCEPT
 sudo iptables -t nat -A PREROUTING -i $WLAN_IF -p tcp --dport 53 -j ACCEPT
 
 # Redirect HTTP to local portal (Flask app on port 5000)
+# But don't redirect if it's already going to the portal IP
+sudo iptables -t nat -A PREROUTING -i $WLAN_IF -p tcp -d $WLAN_IP --dport 80 -j ACCEPT
 sudo iptables -t nat -A PREROUTING -i $WLAN_IF -p tcp --dport 80 -j REDIRECT --to-ports 5000
 # For HTTPS (443), we might need to reject it or redirect, though SSL redirection is tricky.
 # Often we just reject it to force the OS to detect a portal via HTTP.
@@ -66,5 +68,7 @@ sudo iptables -t nat -A PREROUTING -i $WLAN_IF -p tcp --dport 443 -j REDIRECT --
 
 # Also allow local access to the portal on port 5000
 sudo iptables -A INPUT -i $WLAN_IF -p tcp --dport 5000 -j ACCEPT
+# Ensure traffic to the gateway itself is always allowed for basic services
+sudo iptables -A INPUT -i $WLAN_IF -p udp --dport 67:68 --sport 67:68 -j ACCEPT
 
 echo "Network setup complete."

@@ -36,6 +36,8 @@ sudo cp scripts/*.sh /usr/local/bin/
 # Patch the setup_network script with the detected interfaces for convenience
 sudo sed -i "s/^WLAN_IF=.*/WLAN_IF=\"$WLAN_IF\"/" /usr/local/bin/setup_network.sh
 sudo sed -i "s/^ETH_IF=.*/ETH_IF=\"$ETH_IF\"/" /usr/local/bin/setup_network.sh
+# Also patch authorize_mac.sh with the detected WLAN_IF
+sudo sed -i "s/wlan0/$WLAN_IF/g" /usr/local/bin/authorize_mac.sh
 sudo cp scripts/apply_config.py /usr/local/bin/
 sudo chmod +x /usr/local/bin/*.sh
 sudo cp scripts/*.template $INSTALL_DIR/

@@ -22,7 +22,20 @@
         <h2>{{ config.portal_title }}</h2>
         <p class="welcome">{{ config.portal_welcome }}</p>
 
-        <form action="/login" method="post">
+        {% if user %}
+        <div style="margin: 20px 0; padding: 15px; background: #e7f3ff; border-radius: 8px; border: 1px solid #b3d7ff;">
+            <p>Welcome back, <strong>{{ user.name }}</strong>!</p>
+            <form action="/login" method="post">
+                <input type="hidden" name="mac" value="{{ mac }}">
+                <input type="hidden" name="name" value="{{ user.name }}">
+                <input type="hidden" name="email" value="{{ user.email }}">
+                <button type="submit">Reconnect Now</button>
+            </form>
+            <p style="font-size: 0.8em; margin-top: 10px;"><a href="#" onclick="document.getElementById('reg-form').style.display='block'; this.parentElement.parentElement.style.display='none'; return false;" style="color: #666;">Not you? Click here to register.</a></p>
+        </div>
+        {% endif %}
+
+        <form action="/login" method="post" id="reg-form" style="{{ 'display:none;' if user else '' }}">
             <input type="hidden" name="mac" value="{{ mac }}">
             <input type="text" name="name" placeholder="Name" required>
             <input type="email" name="email" placeholder="Email" required>
