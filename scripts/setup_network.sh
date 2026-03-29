@@ -5,15 +5,52 @@
 set -e
 
 # Configuration
-# Attempt to detect interfaces if not already set
-if [ -z "$WLAN_IF" ]; then
-    WLAN_IF=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(wlan|wlp|wls)' | head -n 1)
-    [ -z "$WLAN_IF" ] && WLAN_IF="wlan0"
+# Attempt to load interfaces from config if exists
+IFACES_CONF="/usr/local/etc/easywifi/ifaces.conf"
+if [ -f "$IFACES_CONF" ]; then
+    source "$IFACES_CONF"
 fi
 
-if [ -z "$ETH_IF" ]; then
-    ETH_IF=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(eth|enp|eno|ens)' | head -n 1)
-    [ -z "$ETH_IF" ] && ETH_IF="eth0"
+# Attempt to detect interfaces if not already set or loaded
+if [ -z "$WLAN_IF" ] || [ -z "$ETH_IF" ]; then
+    echo "Detecting network interfaces..."
+
+    # 1. Identify the interface with the default route (Internet source)
+    INTERNET_IF=$(ip route | grep '^default' | awk '{print $5}' | head -n 1)
+
+    # 2. Identify all WiFi interfaces
+    ALL_WIFI_IFS=""
+    if command -v iw >/dev/null 2>&1; then
+        ALL_WIFI_IFS=$(iw dev | awk '$1=="Interface"{print $2}')
+    else
+        ALL_WIFI_IFS=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(wlan|wlp|wls)')
+    fi
+
+    # 3. Choose WLAN_IF (the one to host the hotspot)
+    if [ -z "$WLAN_IF" ]; then
+        # We want a WiFi interface that is NOT the internet source, if possible.
+        for iface in $ALL_WIFI_IFS; do
+            if [ "$iface" != "$INTERNET_IF" ]; then
+                WLAN_IF=$iface
+                break
+            fi
+        done
+        # Fallback: if no other WiFi card, use the first one found
+        if [ -z "$WLAN_IF" ]; then
+            WLAN_IF=$(echo $ALL_WIFI_IFS | awk '{print $1}')
+        fi
+        [ -z "$WLAN_IF" ] && WLAN_IF="wlan0"
+    fi
+
+    # 4. Choose ETH_IF (the internet source)
+    if [ -z "$ETH_IF" ]; then
+        ETH_IF=$INTERNET_IF
+        # Fallback for ETH_IF: if no default route, look for any non-WLAN ethernet-like interface
+        if [ -z "$ETH_IF" ]; then
+            ETH_IF=$(ip -o link show | awk -F': ' '{print $2}' | grep -v 'lo' | grep -v "$WLAN_IF" | grep -E '^(eth|enp|eno|ens)' | head -n 1)
+        fi
+        [ -z "$ETH_IF" ] && ETH_IF="eth0"
+    fi
 fi
 
 echo "Using WiFi interface: $WLAN_IF"
@@ -70,5 +107,19 @@ sudo iptables -t nat -A PREROUTING -i $WLAN_IF -p tcp --dport 443 -j REDIRECT --
 sudo iptables -A INPUT -i $WLAN_IF -p tcp --dport 5000 -j ACCEPT
 # Ensure traffic to the gateway itself is always allowed for basic services
 sudo iptables -A INPUT -i $WLAN_IF -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+
+echo "Restarting services to apply network changes..."
+sudo systemctl restart hostapd
+sudo systemctl restart dnsmasq
+sudo systemctl restart easywifi-app
+
+echo "Verifying services..."
+for service in hostapd dnsmasq easywifi-app; do
+    if systemctl is-active --quiet $service; then
+        echo "[OK] $service is running."
+    else
+        echo "[ERROR] $service failed to start. Check 'systemctl status $service' for details."
+    fi
+done
 
 echo "Network setup complete."
