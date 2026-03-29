@@ -5,8 +5,20 @@
 set -e
 
 # Configuration
-WLAN_IF="wlan0"      # Change as needed
-ETH_IF="eth0"        # Change as needed
+# Attempt to detect interfaces if not already set
+if [ -z "$WLAN_IF" ]; then
+    WLAN_IF=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(wlan|wlp|wls)' | head -n 1)
+    [ -z "$WLAN_IF" ] && WLAN_IF="wlan0"
+fi
+
+if [ -z "$ETH_IF" ]; then
+    ETH_IF=$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(eth|enp|eno|ens)' | head -n 1)
+    [ -z "$ETH_IF" ] && ETH_IF="eth0"
+fi
+
+echo "Using WiFi interface: $WLAN_IF"
+echo "Using Ethernet interface: $ETH_IF"
+
 WLAN_IP="192.168.4.1"
 DHCP_RANGE="192.168.4.2,192.168.4.200,255.255.255.0,24h"
 
